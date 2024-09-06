@@ -1,0 +1,18 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int     @id @default(autoincrement())
+  chat_id        BigInt  @unique
+  actions_number Int     @default(3)
+  step           Int     @default(0)
+  name           String?
+  date_birth     String?
+  last_message   BigInt?
+}
