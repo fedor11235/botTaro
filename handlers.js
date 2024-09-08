@@ -149,7 +149,7 @@ export async function handlerText(bot, msg) {
           })
           const cardNumber = Math.floor(Math.random() * 21)
           const cardName = meaningOfCards[cardNumber]
-          const msgAnimation = await bot.sendAnimation(msg.chat.id, './assets/loader.gif');
+          const msgAnimation = await bot.sendAnimation(msg.chat.id, './assets/loader.mp4');
           const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [
