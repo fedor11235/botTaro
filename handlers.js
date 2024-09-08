@@ -1,5 +1,11 @@
+import OpenAI from "openai";
+import { config } from 'dotenv'
 import { prisma } from './prisma.js'
-import { messageTest } from './test.js'
+import { meaningOfCards } from './settings.js'
+
+config()
+
+const openai = new OpenAI({apiKey: process.env.API_KEY_CGPT});
 
 export async function handlerHelp(bot, msg) {
   await bot.sendMessage(msg.chat.id, `
@@ -72,6 +78,24 @@ export async function handlerSuccessfulPayment(bot, msg) {
   await bot.sendMessage(msg.chat.id, "Спасибо, вы успешно купили один расклад");
 }
 
+export async function handlerAddAttempt(bot, msg) {
+  const user = await prisma.user.findUnique({
+    where: {
+      chat_id: msg.chat.id,
+    },
+  })
+  if(user) {
+    await prisma.user.update({
+      where: {
+        chat_id: msg.chat.id,
+      },
+      data: {
+        actions_number: user.actions_number + 1,
+      },
+    })
+  }
+}
+
 export async function handlerText(bot, msg) {
     const user = await prisma.user.findUnique({
       where: {
@@ -111,6 +135,10 @@ export async function handlerText(bot, msg) {
         `);
       } else if(user.step === 2) {
         if(user.actions_number > 0) {
+          if(msg.text.length > 50) {
+            await bot.sendMessage(msg.chat.id, 'Вы ввели слишком длинный текст');
+            return
+          }
           await prisma.user.update({
             where: {
               chat_id: msg.chat.id,
@@ -119,7 +147,18 @@ export async function handlerText(bot, msg) {
               actions_number: user.actions_number - 1
             },
           })
-          await bot.sendMessage(msg.chat.id, messageTest);
+          const cardNumber = Math.floor(Math.random() * 21)
+          const cardName = meaningOfCards[cardNumber]
+          const msgAnimation = await bot.sendAnimation(msg.chat.id, './assets/loader.gif');
+          const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                {"role": "user", "content": `Погадай на таро карте ${cardName}, вопрос ${msg.text}?`}
+            ]
+          });
+          await bot.sendPhoto(msg.chat.id, `./assets/taro/${cardNumber}.webp`, {caption: `Вам выпала карта: "${cardName}"`});
+          await bot.sendMessage(msg.chat.id, completion.choices[0].message.content);
+          await bot.deleteMessage(msg.chat.id, msgAnimation.message_id);
           await bot.sendMessage(msg.chat.id, `
             Надеюсь, этот расклад был полезен для вас!\n\nГотовы узнать больше?\n\nЗадайте свой следующий вопрос, отправив текстовое или голосовое сообщение.
           `);

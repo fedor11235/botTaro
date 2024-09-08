@@ -2,7 +2,14 @@ import { config } from 'dotenv'
 import TelegramBot from 'node-telegram-bot-api';
 
 import { commands } from './settings.js'
-import { handlerStart, handlerHelp, handlerText, handlerPreCheckoutQuery, handlerSuccessfulPayment } from './handlers.js'
+import {
+  handlerStart,
+  handlerHelp,
+  handlerText,
+  handlerPreCheckoutQuery,
+  handlerSuccessfulPayment,
+  handlerAddAttempt 
+} from './handlers.js'
 
 config();
 
@@ -37,11 +44,14 @@ bot.on('successful_payment', async (msg) => {
 
 // Слушаем сообщения от пользователя
 bot.on('text', async msg => {
+  console.log("text")
   try {
     if(msg.text.startsWith('/start')) {
       await handlerStart(bot, msg)
     } else  if(msg.text.startsWith('/help')) {
       await handlerHelp(bot, msg)
+    } else  if(msg.text.startsWith('/add_attempt')) {
+      await handlerAddAttempt(bot, msg)
     }
     else {
       await handlerText(bot, msg)
