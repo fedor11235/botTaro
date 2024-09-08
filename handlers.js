@@ -115,7 +115,7 @@ export async function handlerText(bot, msg) {
         })
         // await bot.sendMessage(msg.chat.id, "Для начала введите команду /start");
         await bot.sendMessage(msg.chat.id, `
-          Отлично!Теперь введите вашу дату рождения в формате ДД.ММ.ГГГГ (например, 01.01.2000):
+          Отлично! Теперь введите вашу дату рождения в формате ДД.ММ.ГГГГ (например, 01.01.2000):
         `);
       } else if(user.step === 1) {
         await prisma.user.update({
