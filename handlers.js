@@ -160,7 +160,7 @@ export async function handlerText(bot, msg) {
           await bot.sendMessage(msg.chat.id, completion.choices[0].message.content);
           await bot.deleteMessage(msg.chat.id, msgAnimation.message_id);
           await bot.sendMessage(msg.chat.id, `
-            Надеюсь, этот расклад был полезен для вас!\n\nГотовы узнать больше?\n\nЗадайте свой следующий вопрос, отправив текстовое или голосовое сообщение.
+            Надеюсь, этот расклад был полезен для вас!\n\nГотовы узнать больше?\n\nЗадайте свой следующий вопрос, отправив текстовое сообщение.
           `);
         } else {
           const newMsg = await bot.sendInvoice(
